@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rokit toolchain
+        uses: CompeyDev/setup-rokit@v0.1.2
+
+      - name: Check formatting (StyLua)
+        continue-on-error: true
+        run: stylua --check src
+
+      - name: Lint (Selene)
+        continue-on-error: true
+        run: selene src
+
+      - name: Build place file (Rojo)
+        run: rojo build default.project.json --output FortuneBeasts.rbxlx
