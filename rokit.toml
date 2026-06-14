@@ -1,0 +1,6 @@
+# Rokit toolchain manifest — installs the dev tools this project needs.
+# Install Rokit (https://github.com/rojo-rbx/rokit) then run `rokit install`.
+[tools]
+rojo = "rojo-rbx/rojo@7.4.4"
+selene = "Kampfkarren/selene@0.27.1"
+stylua = "JohnnyMorganz/stylua@0.20.0"
