@@ -68,7 +68,9 @@ function WorldService.start()
 
 	makeSign("COLLECTION GALLERY", Vector3.new(0, 6, 4), Color3.fromRGB(110, 80, 200)).Parent = gallery
 
-	local perRow = 8
+	-- The roster is ordered by category in groups of `perRow`, so each row is one
+	-- category — matching the official roster sheet's layout.
+	local perRow = 6
 	local spacingX = 7
 	local spacingZ = 9
 	local startZ = -8
@@ -79,6 +81,13 @@ function WorldService.start()
 		local col = index % perRow
 		local cx = (col - (perRow - 1) / 2) * spacingX
 		local cz = startZ - row * spacingZ
+
+		-- Category label at the start of each row.
+		if col == 0 then
+			local catSign = makeSign(string.upper(def.category), Vector3.new(cx - spacingX - 4, 3, cz), Color3.fromRGB(70, 60, 95))
+			catSign.Size = Vector3.new(10, 2.5, 0.5)
+			catSign.Parent = gallery
+		end
 
 		-- Pedestal tinted by rarity.
 		local rarity = Rarity.get(def.rarity)
