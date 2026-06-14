@@ -36,7 +36,19 @@ concept. The loop, in four verbs:
 - `src/shared/Roles.luau` — Income / Trust / Defense / Raid / Caravan / Support.
 - `src/shared/VehicleData.luau` — cart → Pearl River freighter.
 - `src/shared/InsuranceData.luau` — None / Basic / Standard / Full.
+- `src/shared/RouteData.luau` — themed caravan routes (Arctic / Africa / New York /
+  Singapore / Osaka) with their babies, vehicles, and insurance. Captured for the
+  upcoming route phase of the caravan system.
 - `src/shared/GameConfig.luau` — **every gameplay number lives here.**
+
+## Character art (no coding needed)
+
+Each baby supports optional `image` (2D artwork), `meshId` and `textureId` (3D
+figure) fields. Drop in Roblox asset IDs and the game uses them automatically — the
+art appears in the Collection Board, hatch popup, the in-world portrait billboard,
+and (for meshes) the 3D figure, with a graceful fallback to the procedural
+placeholder for any baby without art yet. **See [`ART_GUIDE.md`](ART_GUIDE.md)** for
+the step-by-step upload guide.
 
 ---
 

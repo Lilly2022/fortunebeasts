@@ -287,6 +287,18 @@ local function refreshBabies(snap: any)
 			}),
 		})
 
+		-- Art thumbnail: the baby's real 2D artwork if provided, else a rarity tile.
+		local thumb = Make(def.image and "ImageLabel" or "Frame", {
+			Size = UDim2.new(0, 40, 0, 40),
+			BackgroundColor3 = rarity.color,
+			BackgroundTransparency = def.image and 1 or 0.25,
+			Parent = row,
+		}, { Theme.corner(8) })
+		if def.image then
+			thumb.Image = def.image
+			thumb.ScaleType = Enum.ScaleType.Fit
+		end
+
 		Make("Frame", {
 			Size = UDim2.new(0, 6, 1, 0),
 			BackgroundColor3 = role.color,

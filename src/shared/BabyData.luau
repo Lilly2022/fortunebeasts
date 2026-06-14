@@ -23,6 +23,15 @@ export type BabyDef = {
 	color: Color3, -- body / outfit colour
 	accent: Color3, -- fruit-hat colour
 	blurb: string,
+	-- Optional real-art hooks. Drop in Roblox asset IDs and the game uses them
+	-- automatically (no code change needed). See ART_GUIDE.md.
+	--   image:     2D artwork shown in the Collection Board, hatch popup, and as a
+	--              portrait billboard above the world baby. e.g. "rbxassetid://123".
+	--   meshId:    a 3D mesh for the in-world figure. e.g. "rbxassetid://456".
+	--   textureId: the texture/surface image applied to that mesh.
+	image: string?,
+	meshId: string?,
+	textureId: string?,
 }
 
 local function C(r: number, g: number, b: number): Color3

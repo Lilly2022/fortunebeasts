@@ -160,6 +160,7 @@ local function sync(snap: any)
 				entry.model:Destroy()
 			end
 			local model = BabyModel.build(owned.babyId)
+			BabyModel.attachPortrait(model, owned.babyId)
 			model.Parent = ensureFolder()
 			entry = { model = model, babyId = owned.babyId, busy = false }
 			active[owned.uid] = entry
