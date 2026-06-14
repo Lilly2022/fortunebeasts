@@ -49,13 +49,50 @@ local function buildMeshModel(babyId: string, meshId: string, textureId: string?
 	return model
 end
 
+-- Builds an image "standee": the baby's full 2D artwork shown as a billboard in
+-- the 3D world (always facing the camera, like a cardboard cutout). This makes the
+-- in-world character look exactly like your render — no 3D modeling required.
+local function buildStandeeModel(babyId: string, image: string): Model
+	local model = Instance.new("Model")
+	model.Name = "Baby_" .. babyId
+
+	local body = Instance.new("Part")
+	body.Name = "Body"
+	body.Size = Vector3.new(2, 2, 2)
+	body.Transparency = 1 -- invisible anchor; the image is the visual
+	body.Anchored = true
+	body.CanCollide = false
+	body.Parent = model
+	model.PrimaryPart = body
+
+	local bb = Instance.new("BillboardGui")
+	bb.Name = "Standee"
+	bb.Size = UDim2.fromOffset(190, 230)
+	bb.StudsOffsetWorldSpace = Vector3.new(0, 1.8, 0)
+	bb.Adornee = body
+	bb.Parent = body
+
+	local img = Instance.new("ImageLabel")
+	img.Size = UDim2.fromScale(1, 1)
+	img.BackgroundTransparency = 1
+	img.Image = image
+	img.ScaleType = Enum.ScaleType.Fit
+	img.Parent = bb
+
+	return model
+end
+
 -- Returns a Model with a PrimaryPart named "Body" at the origin. Caller sets CFrame.
+-- Priority: a real 3D mesh if provided -> the 2D art as a standee -> the cute
+-- procedural placeholder. So adding art per-baby instantly upgrades its look.
 function BabyModel.build(babyId: string): Model
 	local def = BabyData.get(babyId)
 
-	-- Prefer a real mesh asset if the designer supplied one.
 	if def and def.meshId and def.meshId ~= "" then
 		return buildMeshModel(babyId, def.meshId, def.textureId)
+	end
+	if def and def.image and def.image ~= "" then
+		return buildStandeeModel(babyId, def.image)
 	end
 
 	local bodyColor = def and def.color or Color3.fromRGB(255, 220, 200)
@@ -90,8 +127,8 @@ function BabyModel.build(babyId: string): Model
 	return model
 end
 
--- Floats the baby's 2D artwork + name on a billboard above the model. Safe to
--- call even if the baby has no `image` yet (then it just shows the name).
+-- Floats the baby's name on a billboard above the model. (The character's
+-- artwork itself comes from the mesh or the image standee in BabyModel.build.)
 function BabyModel.attachPortrait(model: Model, babyId: string)
 	local def = BabyData.get(babyId)
 	if not model.PrimaryPart then
@@ -99,26 +136,14 @@ function BabyModel.attachPortrait(model: Model, babyId: string)
 	end
 
 	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "Portrait"
-	billboard.Size = UDim2.fromOffset(120, 150)
-	billboard.StudsOffsetWorldSpace = Vector3.new(0, 3.5, 0)
-	billboard.AlwaysOnTop = false
+	billboard.Name = "NameTag"
+	billboard.Size = UDim2.fromOffset(120, 30)
+	billboard.StudsOffsetWorldSpace = Vector3.new(0, 4.2, 0)
 	billboard.Adornee = model.PrimaryPart
 	billboard.Parent = model.PrimaryPart
 
-	if def and def.image and def.image ~= "" then
-		local img = Instance.new("ImageLabel")
-		img.Size = UDim2.fromOffset(110, 110)
-		img.Position = UDim2.fromOffset(5, 0)
-		img.BackgroundTransparency = 1
-		img.Image = def.image
-		img.ScaleType = Enum.ScaleType.Fit
-		img.Parent = billboard
-	end
-
 	local name = Instance.new("TextLabel")
-	name.Size = UDim2.new(1, 0, 0, 28)
-	name.Position = UDim2.new(0, 0, 1, -28)
+	name.Size = UDim2.fromScale(1, 1)
 	name.BackgroundTransparency = 0.3
 	name.BackgroundColor3 = Color3.fromRGB(20, 18, 30)
 	name.Font = Enum.Font.FredokaOne
