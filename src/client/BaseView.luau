@@ -21,7 +21,7 @@ local State = require(script.Parent.State)
 
 local BaseView = {}
 
-local PLATFORM_CENTER = Vector3.new(0, 0.5, -28)
+local PLATFORM_CENTER = Vector3.new(40, 0.5, 0)
 local SLOT_SPACING = 6
 local SQUISH_RANGE = 14
 

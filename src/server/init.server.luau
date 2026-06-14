@@ -10,6 +10,7 @@ local DataService = require(script.DataService)
 local EconomyService = require(script.EconomyService)
 local BabyService = require(script.BabyService)
 local CaravanService = require(script.CaravanService)
+local WorldService = require(script.WorldService)
 
 -- 1. Create the remote folder before any client asks for it.
 Net.init()
@@ -17,6 +18,7 @@ Net.init()
 -- 2. Boot services (data first, then anything that reads profiles).
 DataService.start()
 BabyService.start()
+WorldService.start()
 
 -- 3. Route RemoteFunctions. Each handler validates the caller owns a profile;
 --    the services themselves do the deeper rule checks.
