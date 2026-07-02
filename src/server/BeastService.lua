@@ -56,101 +56,155 @@ local function weldTo(root, p)
 	weld.Parent = root
 end
 
--- Builds a chubby little beast (~3 studs tall) with per-beast flair
+local function box(size, color, cf, parent)
+	local p = Instance.new("Part")
+	p.Size = size
+	p.Color = color
+	p.Material = Enum.Material.SmoothPlastic
+	p.CFrame = cf
+	p.CanCollide = false
+	p.Anchored = false
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	p.Parent = parent
+	return p
+end
+
+-- Flat disc facing forward (used for the pacifier ring and belly patches)
+local function frontDisc(diameter, thickness, color, cf, parent)
+	local p = Instance.new("Part")
+	p.Shape = Enum.PartType.Cylinder
+	p.Size = Vector3.new(thickness, diameter, diameter)
+	p.Color = color
+	p.Material = Enum.Material.SmoothPlastic
+	p.CFrame = cf * CFrame.Angles(0, math.rad(90), 0) -- cylinder axis points forward
+	p.CanCollide = false
+	p.Anchored = false
+	p.Parent = parent
+	return p
+end
+
+local SKIN = Color3.fromRGB(255, 222, 195)
+local BLUSH = Color3.fromRGB(255, 150, 160)
+local PACIFIER = Color3.fromRGB(255, 130, 160)
+
+--[[
+	Builds a chibi hooded baby (~3.2 studs tall) in the concept-art style:
+	skin-tone face peeking out of an animal/fruit hood, pacifier, angry
+	eyebrows, blush cheeks, and a white diaper. Each beast gets its own
+	hood flair (mouse ears, frog eyes, turtle shell, owl tufts, dragon horns).
+]]
 local function buildBeastModel(beastDef, ownerName)
 	local model = Instance.new("Model")
 	model.Name = "Beast_" .. beastDef.id
 
 	local origin = CFrame.new(0, 100, 0) -- moved onto a pad right after building
+	local hoodColor = beastDef.color
 
-	-- Body (root part)
-	local body = ball(2.4, beastDef.color, origin, model)
+	-- Body (root part) in the hood/onesie color
+	local body = ball(1.9, hoodColor, origin, model)
 	body.Name = "Body"
 	body.CanCollide = true
 	model.PrimaryPart = body
 
-	-- Head
-	local head = ball(1.7, beastDef.color, origin * CFrame.new(0, 1.7, 0), model)
-	weldTo(body, head)
+	-- White diaper peeking out under the onesie
+	local diaper = ball(1.5, Color3.new(1, 1, 1), origin * CFrame.new(0, -0.5, 0), model)
+	weldTo(body, diaper)
 
-	-- Eyes (big and cute)
-	for _, xOffset in ipairs({ -0.42, 0.42 }) do
-		local white = ball(0.55, Color3.new(1, 1, 1), origin * CFrame.new(xOffset, 1.85, -0.65), model)
+	-- Big baby head (chibi = head bigger than body) with the hood behind it
+	local head = ball(2.1, SKIN, origin * CFrame.new(0, 1.55, -0.15), model)
+	weldTo(body, head)
+	local hood = ball(2.5, hoodColor, origin * CFrame.new(0, 1.7, 0.4), model)
+	weldTo(body, hood)
+
+	-- Face: eyes, ANGRY eyebrows, blush cheeks
+	for _, xOffset in ipairs({ -0.45, 0.45 }) do
+		local white = ball(0.5, Color3.new(1, 1, 1), origin * CFrame.new(xOffset, 1.68, -1.02), model)
 		weldTo(body, white)
-		local pupil = ball(0.26, Color3.new(0, 0, 0), origin * CFrame.new(xOffset, 1.85, -0.9), model)
+		local pupil = ball(0.26, Color3.fromRGB(45, 30, 25), origin * CFrame.new(xOffset, 1.68, -1.2), model)
 		weldTo(body, pupil)
+
+		-- Angry brow: inner end tilted down toward the nose
+		local browAngle = xOffset < 0 and -0.35 or 0.35
+		local brow = box(
+			Vector3.new(0.55, 0.1, 0.12),
+			Color3.fromRGB(45, 30, 25),
+			origin * CFrame.new(xOffset, 2.02, -1.05) * CFrame.Angles(0, 0, browAngle),
+			model
+		)
+		weldTo(body, brow)
+
+		local blush = ball(0.3, BLUSH, origin * CFrame.new(xOffset * 1.75, 1.4, -0.82), model)
+		weldTo(body, blush)
 	end
 
-	-- Per-beast flair so each one is recognizable at a glance
+	-- Signature pacifier 🍼
+	local pacifierRing = frontDisc(0.6, 0.16, PACIFIER, origin * CFrame.new(0, 1.28, -1.1), model)
+	weldTo(body, pacifierRing)
+	local pacifierKnob = ball(0.3, PACIFIER, origin * CFrame.new(0, 1.28, -1.28), model)
+	weldTo(body, pacifierKnob)
+
+	-- Per-beast hood flair so each one is recognizable at a glance
 	if beastDef.id == "TaxRat" then
-		-- Round ears + pink nose
-		for _, xOffset in ipairs({ -0.7, 0.7 }) do
-			local ear = ball(0.7, beastDef.color, origin * CFrame.new(xOffset, 2.5, 0), model)
+		-- Mouse hood: round gray ears with pink inners
+		for _, xOffset in ipairs({ -0.9, 0.9 }) do
+			local ear = ball(0.8, hoodColor, origin * CFrame.new(xOffset, 2.8, 0.35), model)
 			weldTo(body, ear)
+			local inner = ball(0.45, BLUSH, origin * CFrame.new(xOffset, 2.82, 0.1), model)
+			weldTo(body, inner)
 		end
-		local nose = ball(0.3, Color3.fromRGB(255, 150, 170), origin * CFrame.new(0, 1.55, -0.85), model)
-		weldTo(body, nose)
 	elseif beastDef.id == "GoldFrog" then
-		-- Frog eyes on top + a gold coin on the belly
-		for _, xOffset in ipairs({ -0.55, 0.55 }) do
-			local eye = ball(0.6, beastDef.color, origin * CFrame.new(xOffset, 2.6, -0.2), model)
-			weldTo(body, eye)
+		-- Gold frog hood (金娃宝宝!): bulgy frog eyes on top + coin on the belly
+		for _, xOffset in ipairs({ -0.58, 0.58 }) do
+			local frogEye = ball(0.7, hoodColor, origin * CFrame.new(xOffset, 2.9, 0.15), model)
+			weldTo(body, frogEye)
+			local frogPupil = ball(0.26, Color3.fromRGB(45, 30, 25), origin * CFrame.new(xOffset, 3.0, -0.12), model)
+			weldTo(body, frogPupil)
 		end
-		local coin = Instance.new("Part")
-		coin.Shape = Enum.PartType.Cylinder
-		coin.Size = Vector3.new(0.2, 1, 1)
-		coin.Color = Color3.fromRGB(255, 220, 90)
+		local coin = frontDisc(0.95, 0.18, Color3.fromRGB(255, 220, 90), origin * CFrame.new(0, 0.05, -0.85), model)
 		coin.Material = Enum.Material.Metal
-		coin.CanCollide = false
-		coin.CFrame = origin * CFrame.new(0, 0.2, -1.15) * CFrame.Angles(0, math.rad(90), 0)
-		coin.Parent = model
 		weldTo(body, coin)
 	elseif beastDef.id == "VaultTurtle" then
-		-- Shell on the back
-		local shell = ball(2.2, Color3.fromRGB(60, 110, 60), origin * CFrame.new(0, 0.3, 1), model)
+		-- Turtle hood: shell on the back
+		local shell = ball(1.8, Color3.fromRGB(55, 105, 55), origin * CFrame.new(0, 0.3, 0.9), model)
 		weldTo(body, shell)
 	elseif beastDef.id == "TrustOwl" then
-		-- Little wings
-		for _, xOffset in ipairs({ -1.3, 1.3 }) do
-			local wing = ball(0.9, Color3.fromRGB(70, 100, 180), origin * CFrame.new(xOffset, 0.4, 0.2), model)
+		-- Owl hood: ear tufts, little wings, light belly patch
+		for _, xOffset in ipairs({ -0.8, 0.8 }) do
+			local tuft = ball(0.45, hoodColor, origin * CFrame.new(xOffset, 3.0, 0.35), model)
+			weldTo(body, tuft)
+			local wing = ball(0.85, hoodColor, origin * CFrame.new(xOffset * 1.4, 0.3, 0.2), model)
 			weldTo(body, wing)
 		end
+		local belly = frontDisc(0.8, 0.12, Color3.fromRGB(200, 220, 255), origin * CFrame.new(0, 0.15, -0.88), model)
+		weldTo(body, belly)
 	elseif beastDef.id == "DebtDragon" then
-		-- Tiny business suit: white shirt + black tie, plus horns
-		local shirt = Instance.new("Part")
-		shirt.Size = Vector3.new(1.4, 1.1, 0.3)
-		shirt.Color = Color3.new(1, 1, 1)
-		shirt.Material = Enum.Material.SmoothPlastic
-		shirt.CanCollide = false
-		shirt.CFrame = origin * CFrame.new(0, 0.1, -1.05)
-		shirt.Parent = model
-		weldTo(body, shirt)
-		local tie = Instance.new("Part")
-		tie.Size = Vector3.new(0.35, 0.9, 0.15)
-		tie.Color = Color3.new(0, 0, 0)
-		tie.CanCollide = false
-		tie.CFrame = origin * CFrame.new(0, 0.1, -1.2)
-		tie.Parent = model
-		weldTo(body, tie)
-		for _, xOffset in ipairs({ -0.5, 0.5 }) do
-			local horn = ball(0.35, Color3.fromRGB(255, 230, 150), origin * CFrame.new(xOffset, 2.65, 0.2), model)
+		-- Dragon hood in a tiny business suit: gold horns, shirt + tie, stubby wings
+		for _, xOffset in ipairs({ -0.55, 0.55 }) do
+			local horn = ball(0.4, Color3.fromRGB(255, 225, 130), origin * CFrame.new(xOffset, 3.0, 0.25), model)
 			weldTo(body, horn)
+			local wing = ball(0.6, Color3.fromRGB(160, 50, 45), origin * CFrame.new(xOffset * 1.9, 0.5, 0.55), model)
+			weldTo(body, wing)
 		end
+		local shirt = box(Vector3.new(1.2, 0.9, 0.25), Color3.new(1, 1, 1), origin * CFrame.new(0, 0.1, -0.88), model)
+		weldTo(body, shirt)
+		local tie = box(Vector3.new(0.3, 0.7, 0.14), Color3.new(0, 0, 0), origin * CFrame.new(0, 0, -1.0), model)
+		weldTo(body, tie)
 	end
 
-	-- Name tag: "Gold Frog (Rare) - Lilly's"
+	-- Name tag: "Gold Frog · 金娃宝宝" + owner
 	local rarityColor = BeastConfig.Rarities[beastDef.rarity].color
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "NameTag"
-	billboard.Size = UDim2.new(0, 190, 0, 48)
-	billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+	billboard.Size = UDim2.new(0, 200, 0, 50)
+	billboard.StudsOffset = Vector3.new(0, 3.8, 0)
 	billboard.AlwaysOnTop = true
 	billboard.MaxDistance = 90
 	local nameLabel = Instance.new("TextLabel")
 	nameLabel.Name = "BeastName"
 	nameLabel.Size = UDim2.new(1, 0, 0.55, 0)
 	nameLabel.BackgroundTransparency = 1
-	nameLabel.Text = beastDef.displayName
+	nameLabel.Text = beastDef.cnName and (beastDef.displayName .. " · " .. beastDef.cnName) or beastDef.displayName
 	nameLabel.TextScaled = true
 	nameLabel.Font = Enum.Font.FredokaOne
 	nameLabel.TextColor3 = rarityColor
