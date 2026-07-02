@@ -214,6 +214,26 @@ function PlotService.init(injectedServices)
 	end
 	dprint(#plots .. " plots built")
 
+	-- Drop the player at their own base, facing their beast pads,
+	-- so new players immediately see their babies.
+	local function teleportToPlot(player, character)
+		local plot = plotByPlayer[player]
+		if not plot or not character then
+			return
+		end
+		local root = character:WaitForChild("HumanoidRootPart", 5)
+		if not root then
+			return
+		end
+		local floor = plot.model:FindFirstChild("Floor")
+		if floor then
+			local standAt = (floor.CFrame * CFrame.new(0, 4, -16)).Position
+			local lookAt = (floor.CFrame * CFrame.new(0, 4, -6)).Position
+			character:PivotTo(CFrame.lookAt(standAt, lookAt))
+			dprint(player.Name .. " teleported to their base")
+		end
+	end
+
 	local function assignPlot(player)
 		for _, plot in ipairs(plots) do
 			if plot.owner == nil then
@@ -221,6 +241,15 @@ function PlotService.init(injectedServices)
 				plotByPlayer[player] = plot
 				plot.signText.Text = "🏠 " .. player.DisplayName .. "'s Base"
 				dprint(("Plot %d assigned to %s"):format(plot.index, player.Name))
+
+				-- Spawn (and respawn) at your own base
+				player.CharacterAdded:Connect(function(character)
+					task.wait(0.2) -- let the default spawn finish first
+					teleportToPlot(player, character)
+				end)
+				if player.Character then
+					teleportToPlot(player, player.Character)
+				end
 				return
 			end
 		end
