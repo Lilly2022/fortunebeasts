@@ -39,6 +39,7 @@ local function pushState(player)
 		trust = record.trust,
 		protectedSecondsLeft = math.max(0, math.ceil(record.protectedUntil - now)),
 		oathbreakerSecondsLeft = math.max(0, math.ceil(record.oathbreakerUntil - now)),
+		collectionCount = record.collectionCount,
 	})
 end
 
@@ -146,6 +147,23 @@ function PlayerDataService.giveProtection(player, seconds, reason)
 	dprint(("%s protected for %ds (%s)"):format(player.Name, seconds, reason or "?"))
 end
 
+-- Records that this player has owned this beast type at least once.
+-- Returns (isNew, totalDiscovered).
+function PlayerDataService.markDiscovered(player, beastId)
+	local record = data[player]
+	if not record then
+		return false, 0
+	end
+	if record.collection[beastId] then
+		return false, record.collectionCount
+	end
+	record.collection[beastId] = true
+	record.collectionCount += 1
+	pushState(player)
+	dprint(("%s discovered %s (collection: %d)"):format(player.Name, beastId, record.collectionCount))
+	return true, record.collectionCount
+end
+
 function PlayerDataService.isOathbreaker(player)
 	local record = data[player]
 	return record ~= nil and record.oathbreakerUntil > os.clock()
@@ -194,6 +212,8 @@ function PlayerDataService.init(_services)
 			joinedAt = os.clock(),
 			protectedUntil = os.clock() + GameConfig.beginnerProtectionSeconds,
 			oathbreakerUntil = 0,
+			collection = {}, -- [beastId] = true for every beast ever owned
+			collectionCount = 0,
 		}
 
 		-- Leaderstats: shows Coins + Trust in the Roblox player list

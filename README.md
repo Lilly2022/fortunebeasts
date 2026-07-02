@@ -43,6 +43,7 @@ In Studio, don't press Play. Instead:
 | **Steal** | hold **F** on a rival's exposed beast | It sticks to your back (you walk slower) — run home to your red **Capture Zone** to keep it! |
 | **Defend** | chase the thief and **touch them** | Your beast escapes and returns home |
 | **Buy beasts** | market stalls at the center | Vault Turtle 🐢 (60), Trust Owl 🦉 (80), Debt Dragon 🐉 (free... 😏) |
+| **Hatch babies** | 🥚 Mystery Egg at the market (150) | One of **305 collectible babies** — 30 species × 10 numbered variants (草莓88 style!) across 5 rarities. Rarer = bigger, shinier, crowned 👑 |
 | **Caravan** | orange pad at the market | Escort the wagon to the delivery point. Solo = 50 coins. With a friend = 120-coin pool... |
 | **Trust or betray** | end of a 2-player caravan | **Split Fair** (60 each, +trust) or **Grab Extra** (90 vs 30, but you're marked 💀 **OATHBREAKER** for 10 minutes) |
 

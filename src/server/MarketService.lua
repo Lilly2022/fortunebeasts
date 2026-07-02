@@ -121,12 +121,111 @@ local function buildStall(index, beastId)
 	stall.Parent = workspace.FB_Map.Market
 end
 
+-- ============ MYSTERY EGG (hatch one of 300 collectible babies) ============
+
+local function hatchEgg(player)
+	if not services.Beast.findFreeSlot(player, "exposed") then
+		services.PlayerData.alert(player, "❌ Your base is full!", "warn")
+		return
+	end
+	if not services.PlayerData.trySpendCoins(player, GameConfig.hatchPrice, "Mystery Egg") then
+		services.PlayerData.alert(
+			player,
+			("❌ Not enough coins! An egg costs %d."):format(GameConfig.hatchPrice),
+			"warn"
+		)
+		return
+	end
+
+	local def = BeastConfig.rollHatch()
+	local record = services.Beast.grantBeast(player, def.id)
+	if not record then
+		services.PlayerData.addCoins(player, GameConfig.hatchPrice, "refund")
+		return
+	end
+
+	local flourish = def.rarity == "Legendary" and "🌟 LEGENDARY!!! " or def.rarity == "Epic" and "💜 EPIC! " or ""
+	services.PlayerData.alert(
+		player,
+		("🥚 %sYou hatched %s · %s (%s)!"):format(flourish, def.displayName, def.cnName, def.rarity),
+		def.rarity == "Common" and "info" or "gold"
+	)
+	if def.rarity == "Legendary" then
+		services.PlayerData.alertAll(
+			("🌟 %s hatched a LEGENDARY %s!"):format(player.DisplayName, def.displayName),
+			"gold"
+		)
+	end
+	dprint(("%s hatched %s (%s)"):format(player.Name, def.id, def.rarity))
+end
+
+local function buildHatchStand()
+	-- A big wobbly egg on a pedestal at the market
+	local pedestal = Instance.new("Part")
+	pedestal.Name = "HatchStand"
+	pedestal.Shape = Enum.PartType.Cylinder
+	pedestal.Size = Vector3.new(1, 10, 10)
+	pedestal.Color = Color3.fromRGB(250, 220, 240)
+	pedestal.Material = Enum.Material.SmoothPlastic
+	pedestal.Anchored = true
+	local angle = math.rad(80)
+	pedestal.CFrame = CFrame.new(math.cos(angle) * 22, 0.6, math.sin(angle) * 22) * CFrame.Angles(0, 0, math.rad(90))
+
+	local egg = Instance.new("Part")
+	egg.Shape = Enum.PartType.Ball
+	egg.Size = Vector3.new(4, 4, 4)
+	egg.Color = Color3.new(1, 1, 1)
+	egg.Material = Enum.Material.Marble
+	egg.Anchored = true
+	egg.CanCollide = false
+	egg.CFrame = pedestal.CFrame * CFrame.new(0, 0, 0) + Vector3.new(0, 2.6, 0)
+	egg.Parent = pedestal
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Size = UDim2.new(0, 240, 0, 66)
+	billboard.StudsOffset = Vector3.new(0, 4.5, 0)
+	billboard.AlwaysOnTop = true
+	billboard.MaxDistance = 120
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Text = "🥚 MYSTERY EGG"
+	nameLabel.TextScaled = true
+	nameLabel.Font = Enum.Font.FredokaOne
+	nameLabel.TextColor3 = Color3.fromRGB(255, 220, 120)
+	nameLabel.TextStrokeTransparency = 0.2
+	nameLabel.Parent = billboard
+	local infoLabel = Instance.new("TextLabel")
+	infoLabel.Size = UDim2.new(1, 0, 0.5, 0)
+	infoLabel.Position = UDim2.new(0, 0, 0.5, 0)
+	infoLabel.BackgroundTransparency = 1
+	infoLabel.Text = ("%d babies to collect! 🪙 %d"):format(BeastConfig.TotalCollectible, GameConfig.hatchPrice)
+	infoLabel.TextScaled = true
+	infoLabel.Font = Enum.Font.FredokaOne
+	infoLabel.TextColor3 = Color3.new(1, 1, 1)
+	infoLabel.TextStrokeTransparency = 0.3
+	infoLabel.Parent = billboard
+	billboard.Parent = egg
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ObjectText = "Mystery Egg"
+	prompt.ActionText = ("Hatch! (%d)"):format(GameConfig.hatchPrice)
+	prompt.HoldDuration = 0.8
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = egg
+	prompt.Triggered:Connect(hatchEgg)
+
+	pedestal.Parent = workspace.FB_Map.Market
+end
+
 function MarketService.init(injectedServices)
 	services = injectedServices
 	for index, beastId in ipairs(BeastConfig.MarketOrder) do
 		buildStall(index, beastId)
 	end
-	dprint("Market stalls built")
+	buildHatchStand()
+	dprint(("Market stalls + Mystery Egg built (%d babies in catalog)"):format(#BeastConfig.Catalog))
 end
 
 return MarketService

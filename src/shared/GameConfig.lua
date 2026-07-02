@@ -47,6 +47,7 @@ local GameConfig = {
 		TrustOwl = 80,
 		DebtDragon = 0,
 	},
+	hatchPrice = 150, -- Mystery Egg: random baby from the 300-strong catalog
 
 	-- ========== MISC ==========
 	baseWalkSpeed = 20,

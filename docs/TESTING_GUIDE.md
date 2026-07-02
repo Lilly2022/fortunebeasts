@@ -99,7 +99,18 @@ more than 25 studs behind, it pauses ("⏸️ Wagon waiting"). At the green
 **What could break:** if a player leaves mid-run the caravan continues for the
 other player (or is abandoned if empty) — check Output for `[FB][Caravan]` lines.
 
-## 10. Beginner protection
+## 10. Mystery Egg + collection 🥚
+
+**Test:** Earn/wait until you have 150+ coins, walk to the big white egg at the
+market, hold E. You hatch one of **305 collectible babies** (30 species × 10
+numbered variants, e.g. "Strawberry 88 · 草莓88"). Check:
+- HUD alert shows the baby's name + rarity; "✨ NEW!" on first-time discoveries
+- The 🏆 Babies counter (top-left) goes up on new discoveries
+- Rarer babies are visibly bigger; Legendaries are golden with a crown and are
+  announced to the whole server
+- With a full base (8 beasts) the egg refuses and does NOT charge you
+
+## 11. Beginner protection
 
 **Test (2 Players):** immediately after starting, try to steal from the other
 player → "🛡️ ... is protected right now." Both HUDs show the 🛡️ countdown from 3:00.

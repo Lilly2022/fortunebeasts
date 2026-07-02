@@ -59,17 +59,17 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 local hud = new("ScreenGui", { Name = "FB_HUD", ResetOnSpawn = false, IgnoreGuiInset = true }, playerGui)
 
--- Top-left: coins + trust
+-- Top-left: coins + trust + collection progress
 local statsFrame = new("Frame", {
-	Size = UDim2.new(0.24, 0, 0.11, 0),
+	Size = UDim2.new(0.24, 0, 0.15, 0),
 	Position = UDim2.new(0.015, 0, 0.02, 0),
 	BackgroundColor3 = Color3.fromRGB(30, 30, 40),
 	BackgroundTransparency = 0.25,
 }, hud)
-new("UICorner", { CornerRadius = UDim.new(0.2, 0) }, statsFrame)
+new("UICorner", { CornerRadius = UDim.new(0.15, 0) }, statsFrame)
 
 local coinsLabel = new("TextLabel", {
-	Size = UDim2.new(1, -10, 0.5, 0),
+	Size = UDim2.new(1, -10, 0.34, 0),
 	Position = UDim2.new(0, 10, 0, 0),
 	Text = "🪙 100",
 	TextXAlignment = Enum.TextXAlignment.Left,
@@ -78,12 +78,22 @@ styleText(coinsLabel)
 coinsLabel.TextColor3 = Color3.fromRGB(255, 220, 100)
 
 local trustLabel = new("TextLabel", {
-	Size = UDim2.new(1, -10, 0.5, 0),
-	Position = UDim2.new(0, 10, 0.5, 0),
+	Size = UDim2.new(1, -10, 0.33, 0),
+	Position = UDim2.new(0, 10, 0.34, 0),
 	Text = "🤝 Trust: 0",
 	TextXAlignment = Enum.TextXAlignment.Left,
 }, statsFrame)
 styleText(trustLabel)
+
+local BeastConfig = require(ReplicatedStorage:WaitForChild("FB_Modules"):WaitForChild("BeastConfig"))
+local collectionLabel = new("TextLabel", {
+	Size = UDim2.new(1, -10, 0.33, 0),
+	Position = UDim2.new(0, 10, 0.67, 0),
+	Text = ("🏆 Babies: 0/%d"):format(BeastConfig.TotalCollectible),
+	TextXAlignment = Enum.TextXAlignment.Left,
+}, statsFrame)
+styleText(collectionLabel)
+collectionLabel.TextColor3 = Color3.fromRGB(180, 240, 180)
 
 -- Top-center: protection timer + oathbreaker warning + caravan status
 local protectionLabel = new("TextLabel", {
@@ -126,6 +136,8 @@ local HINTS = {
 	"💡 Start a CARAVAN at the orange pad by the market for bonus coins!",
 	"💡 If a thief grabs your beast, CHASE THEM - touch them to get it back!",
 	"💡 The Debt Dragon pays you 100 coins now... and takes 20% of your income forever. 🐉",
+	"💡 Hatch the 🥚 MYSTERY EGG at the market — 300+ babies to collect, rarer = bigger!",
+	"💡 Legendary babies are HUGE, golden, and wear crowns. Good luck. 🌟",
 }
 task.spawn(function()
 	local index = 1
@@ -274,6 +286,7 @@ local oathbreakerSecondsLeft = 0
 remotes.State.OnClientEvent:Connect(function(state)
 	coinsLabel.Text = ("🪙 %d"):format(state.coins)
 	trustLabel.Text = ("🤝 Trust: %d"):format(state.trust)
+	collectionLabel.Text = ("🏆 Babies: %d/%d"):format(state.collectionCount or 0, BeastConfig.TotalCollectible)
 	protectedSecondsLeft = state.protectedSecondsLeft or 0
 	oathbreakerSecondsLeft = state.oathbreakerSecondsLeft or 0
 end)
