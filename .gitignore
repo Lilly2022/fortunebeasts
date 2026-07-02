@@ -1,0 +1,11 @@
+# Roblox Studio lock/backup files
+*.rbxl.lock
+*.rbxlx.lock
+*_Backup*.rbxl
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Note: build/FortuneBeasts.rbxl IS committed on purpose -
+# it's the ready-to-open deliverable for non-coders.

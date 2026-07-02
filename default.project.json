@@ -1,0 +1,35 @@
+{
+  "name": "FortuneBeasts",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "FB_Modules": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "FB_Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CharacterWalkSpeed": 20
+      },
+      "StarterPlayerScripts": {
+        "FB_ClientController": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Brightness": 2.2,
+        "ClockTime": 14.2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "ShadowMap"
+      }
+    }
+  }
+}
